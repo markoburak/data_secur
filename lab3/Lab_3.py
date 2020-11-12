@@ -175,8 +175,9 @@ class RC5():
         key = self.key
         w = blocksize // 2
         b = blocksize // 8
-        cbc = 0
+        last_made = 0
         with open(input_file, 'rb') as inp, open(output_file, 'wb') as out:
+
             IV = []
             for i in range(2 * (rounds + 1)):
                 temp = inp.read(b)
@@ -184,6 +185,8 @@ class RC5():
                 IV.append(int.from_bytes(temp, byteorder="little"))
             S = vector_init(key, w, rounds, IV=IV)
             isNext = True
+
+
             while isNext:
                 block = inp.read(b)
                 temp = int.from_bytes(block, byteorder="little")
@@ -194,10 +197,10 @@ class RC5():
                 decrypted = self.decrypt_block(block, S, blocksize, rounds)
                 if not isNext:
                     decrypted = decrypted.rstrip(b'\x00')
-                decrypted = int.from_bytes(decrypted, byteorder="little") ^ cbc
+                decrypted = int.from_bytes(decrypted, byteorder="little") ^ last_made
                 decrypted = decrypted.to_bytes(b, byteorder="little")
                 out.write(decrypted)
-                cbc = temp
+                last_made = temp
 
     def encrypt_block(self, block, S, blocksize, rounds):
         w = blocksize // 2
@@ -246,7 +249,7 @@ R = vvesty[1]
 b = vvesty[2]
 
 while (True):
-    choose = input("To Encrypt file press 1 or Decrypt file press 2: ")
+    choose = int(input("To Encrypt file press 1 or Decrypt file press 2: "))
     if choose == 1:
         fR = input("File to encrypt: ")
         fW = input("Filename to write results into: ")
